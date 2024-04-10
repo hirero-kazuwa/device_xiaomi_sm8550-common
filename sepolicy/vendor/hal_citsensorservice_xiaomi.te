@@ -43,4 +43,3 @@ allowxperm vendor_hal_citsensorservice_xiaomi_default self:qipcrtr_socket ioctl 
 r_dir_file(vendor_hal_citsensorservice_xiaomi_default, mnt_vendor_file)
 
 get_prop(vendor_hal_citsensorservice_xiaomi_default, vendor_sensors_prop)
-userdebug_or_eng(`get_prop(vendor_hal_citsensorservice_xiaomi_default, vendor_sensors_debug_prop)');

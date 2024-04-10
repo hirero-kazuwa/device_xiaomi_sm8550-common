@@ -82,12 +82,6 @@ function set_density_by_fb() {
             "socrates")
             setprop vendor.display.lcd_density 560
             ;;
-            "ishtar")
-            setprop vendor.display.lcd_density 560
-            ;;
-            "babylon")
-            setprop vendor.display.lcd_density 440
-            ;;
             *)
             setprop vendor.display.lcd_density 440
             ;;
@@ -108,9 +102,6 @@ function set_density_by_fb() {
         fi
         case "$project" in
             "fuxi")
-            setprop vendor.display.lcd_density 440
-            ;;
-            "babylon")
             setprop vendor.display.lcd_density 440
             ;;
         esac
@@ -339,6 +330,7 @@ case "$target" in
     "kona")
         case "$soc_hwplatform" in
             *)
+                setprop vendor.media.target_variant "_kona"
                 if [ $fb_width -le 1600 ]; then
                     setprop vendor.display.lcd_density 560
                 else

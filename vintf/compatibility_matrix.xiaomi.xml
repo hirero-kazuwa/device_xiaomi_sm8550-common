@@ -1,4 +1,28 @@
 <compatibility-matrix version="5.0" type="framework">
+    <hal format="aidl" optional="true">
+        <name>android.hardware.vibrator</name>
+        <version>1</version>
+        <interface>
+            <name>IVibrator</name>
+            <instance>vibratorfeature</instance>
+        </interface>
+    </hal>
+    <hal format="aidl" optional="true">
+        <name>vendor.xiaomi.hardware.aon</name>
+        <version>1</version>
+        <interface>
+            <name>IAlwaysOn</name>
+            <instance>miaonservicehal</instance>
+        </interface>
+    </hal>
+    <hal format="aidl" optional="true">
+        <name>vendor.xiaomi.hardware.blackbox</name>
+        <version>1</version>
+        <interface>
+            <name>IBlackboxImpl</name>
+            <instance>default</instance>
+        </interface>
+    </hal>
     <hal format="hidl" optional="true">
         <name>vendor.rongcard.hardware.eid</name>
         <version>1.0</version>
@@ -280,6 +304,102 @@
         <version>1.0</version>
         <interface>
             <name>IPowerShare</name>
+            <instance>default</instance>
+        </interface>
+    </hal>
+    <hal format="hidl" optional="true">
+        <name>vendor.xiaomi.cit.bluetooth</name>
+        <version>1.0</version>
+        <interface>
+            <name>IBluetoothService</name>
+            <instance>default</instance>
+        </interface>
+    </hal>
+    <hal format="hidl" optional="true">
+        <name>vendor.xiaomi.cit.wifi</name>
+        <version>1.0</version>
+        <interface>
+            <name>IWifiService</name>
+            <instance>default</instance>
+        </interface>
+    </hal>
+    <hal format="hidl" optional="true">
+        <name>vendor.xiaomi.hardware.cld</name>
+        <version>1.0</version>
+        <interface>
+            <name>ICld</name>
+            <instance>default</instance>
+        </interface>
+    </hal>
+    <hal format="hidl" optional="true">
+        <name>vendor.xiaomi.hardware.fbo</name>
+        <version>1.0</version>
+        <interface>
+            <name>IFbo</name>
+            <instance>default</instance>
+        </interface>
+    </hal>
+    <hal format="hidl" optional="true">
+        <name>vendor.xiaomi.hardware.mimd</name>
+        <version>1.0</version>
+        <interface>
+            <name>IMimd</name>
+            <instance>default</instance>
+        </interface>
+    </hal>
+    <hal format="hidl" optional="true">
+        <name>vendor.xiaomi.hardware.misys</name>
+        <version>1.0</version>
+        <interface>
+            <name>IMiSys</name>
+            <instance>default</instance>
+        </interface>
+    </hal>
+    <hal format="hidl" optional="true">
+        <name>vendor.xiaomi.hardware.misys</name>
+        <version>2.0</version>
+        <interface>
+            <name>IMiSys</name>
+            <instance>default</instance>
+        </interface>
+    </hal>
+    <hal format="hidl" optional="true">
+        <name>vendor.xiaomi.hardware.misys</name>
+        <version>3.0</version>
+        <interface>
+            <name>IMiSys</name>
+            <instance>default</instance>
+        </interface>
+    </hal>
+    <hal format="hidl" optional="true">
+        <name>vendor.xiaomi.hardware.misys</name>
+        <version>4.0</version>
+        <interface>
+            <name>IMiSys</name>
+            <instance>default</instance>
+        </interface>
+    </hal>
+    <hal format="hidl" optional="true">
+        <name>vendor.xiaomi.hardware.swap</name>
+        <version>1.0</version>
+        <interface>
+            <name>ISwap</name>
+            <instance>default</instance>
+        </interface>
+    </hal>
+    <hal format="hidl" optional="true">
+        <name>vendor.xiaomi.hardware.vsimapp</name>
+        <version>1.0</version>
+        <interface>
+            <name>IVSIMService</name>
+            <instance>default</instance>
+        </interface>
+    </hal>
+    <hal format="hidl" optional="true">
+        <name>vendor.xiaomi.modem.qms</name>
+        <version>1.0</version>
+        <interface>
+            <name>IMiQms</name>
             <instance>default</instance>
         </interface>
     </hal>

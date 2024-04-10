@@ -73,9 +73,7 @@ bluetooth.profile.pbap.server.enabled=true
 bluetooth.profile.sap.server.enabled=false
 persist.bluetooth.a2dp_offload.disabled=false
 persist.vendor.qcom.bluetooth.a2dp_mcast_test.enabled=false
-persist.vendor.qcom.bluetooth.a2dp_offload_cap=sbc-aac-aptx-aptxhd-ldac
 persist.vendor.qcom.bluetooth.aac_frm_ctl.enabled=true
-persist.vendor.qcom.bluetooth.aptxadaptiver2_1_support=false
 persist.vendor.qcom.bluetooth.aptxadaptiver2_2_support=false
 persist.vendor.qcom.bluetooth.scram.enabled=false
 persist.vendor.qcom.bluetooth.twsp_state.enabled=false
@@ -113,7 +111,6 @@ vendor.display.use_smooth_motion=1
 vendor.display.vds_allow_hwc=0
 
 # DPM
-persist.vendor.dpm.vndr.feature=1
 persist.vendor.dpm.vndr.halservice.enable=1
 persist.vendor.dpm.vndr.idletimer.mode=default
 
@@ -149,10 +146,11 @@ debug.sf.treat_170m_as_sRGB=1
 debug.sf.use_phase_offsets_as_durations=1
 persist.sys.sf.color_mode=0
 persist.sys.sf.color_saturation=1.0
-ro.gfx.driver.1=com.qualcomm.qti.gpudrivers.taro.api31
+ro.gfx.driver.1=com.qualcomm.qti.gpudrivers.taro.api33
 ro.hardware.egl=adreno
 ro.hardware.vulkan=adreno
 ro.opengles.version=196610
+graphics.gpu.profiler.support=true
 ro.surface_flinger.enable_frame_rate_override=false
 ro.surface_flinger.force_hwc_copy_for_virtual_displays=true
 ro.surface_flinger.has_HDR_display=true
