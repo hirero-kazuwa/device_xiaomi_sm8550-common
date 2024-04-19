@@ -42,9 +42,6 @@ BOARD_USES_ALSA_AUDIO := true
 
 TARGET_USES_QCOM_MM_AUDIO := true
 
-# Boot control
-$(call soong_config_set, ufsbsg, ufsframework, bsg)
-
 # Bootloader
 TARGET_BOOTLOADER_BOARD_NAME := kalama
 TARGET_NO_BOOTLOADER := true
@@ -75,7 +72,17 @@ $(call soong_config_set, qtilocation, feature_nhz, false)
 TARGET_HEALTH_CHARGING_CONTROL_SUPPORTS_BYPASS := false
 
 # Kernel
-BOARD_KERNEL_CMDLINE := video=vfb:640x400,bpp=32,memsize=3072000 disable_dma32=on swinfo.fingerprint=ishtar:13/V14.0.2.0.TMAMIXM:user mtdoops.fingerprint=ishtar:13/V14.0.2.0.TMAMIXM:user bootconfig
+BOARD_BOOTCONFIG := \
+    androidboot.hardware=qcom \
+    androidboot.memcg=1 \
+    androidboot.usbcontroller=a600000.dwc3 \
+    androidboot.selinux=permissive
+
+BOARD_KERNEL_CMDLINE := \
+    kasan=off \
+    disable_dma32=on \
+    mtdoops.fingerprint=ishtar:13/V14.0.6.0.TMAMIXM:user
+
 BOARD_KERNEL_PAGESIZE := 4096
 
 BOARD_BOOT_HEADER_VERSION := 4
@@ -86,11 +93,6 @@ BOARD_MKBOOTIMG_INIT_ARGS += --header_version $(BOARD_INIT_BOOT_HEADER_VERSION)
 
 BOARD_KERNEL_IMAGE_NAME := Image
 TARGET_KERNEL_SOURCE := $(KERNEL_PATH)/kernel-headers
-BOARD_BOOTCONFIG := \
-    androidboot.hardware=qcom \
-    androidboot.memcg=1 \
-    androidboot.usbcontroller=a600000.dwc3 \
-    androidboot.selinux=permissive
 
 BOARD_RAMDISK_USE_LZ4 := true
 TARGET_KERNEL_APPEND_DTB := false
@@ -99,11 +101,12 @@ BOARD_INCLUDE_DTB_IN_BOOTIMG := true
 TARGET_KERNEL_ARCH := arm64
 TARGET_KERNEL_HEADER_ARCH := arm64
 TARGET_FORCE_PREBUILT_KERNEL := true
-
 TARGET_KERNEL_SOURCE := kernel/xiaomi/sm8550
 TARGET_KERNEL_CONFIG := \
     gki_defconfig \
     vendor/kalama_GKI.config
+
+BOARD_USES_GENERIC_KERNEL_IMAGE := true
 
 TARGET_PREBUILT_KERNEL := device/xiaomi/sm8550-common/ishtar-kernel/Image
 BOARD_PREBUILT_DTBOIMAGE := $(KERNEL_PATH)/dtbo.img
