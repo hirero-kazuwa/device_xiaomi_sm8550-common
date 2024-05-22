@@ -127,31 +127,25 @@ persist.sys.fuse.passthrough.enable=true
 vendor.gatekeeper.disable_spu=true
 
 # Graphics
-debug.egl.hw=0
 debug.sf.auto_latch_unsignaled=0
 debug.sf.disable_client_composition_cache=1
 debug.sf.early.app.duration=13666666
-debug.sf.early.sf.duration=15666666
+debug.sf.early.sf.duration=10500000
 debug.sf.earlyGl.app.duration=13666666
-debug.sf.earlyGl.sf.duration=15666666
+debug.sf.earlyGl.sf.duration=10500000
+debug.sf.enable_advanced_sf_phase_offset=1
 debug.sf.enable_gl_backpressure=1
-debug.sf.enable_hwc_vds=1
+debug.sf.enable_hwc_vds=0
 debug.sf.hw=0
 debug.sf.latch_unsignaled=1
 debug.sf.late.app.duration=13666666
-debug.sf.late.sf.duration=15666666
+debug.sf.late.sf.duration=10500000
 debug.sf.predict_hwc_composition_strategy=0
-debug.sf.set_idle_timer_ms=1000
 debug.sf.treat_170m_as_sRGB=1
 debug.sf.use_phase_offsets_as_durations=1
-persist.sys.sf.color_mode=0
-persist.sys.sf.color_saturation=1.0
-ro.gfx.driver.1=com.qualcomm.qti.gpudrivers.taro.api33
 ro.hardware.egl=adreno
 ro.hardware.vulkan=adreno
 ro.opengles.version=196610
-graphics.gpu.profiler.support=true
-ro.surface_flinger.enable_frame_rate_override=false
 ro.surface_flinger.force_hwc_copy_for_virtual_displays=true
 ro.surface_flinger.has_HDR_display=true
 ro.surface_flinger.has_wide_color_display=true
@@ -163,7 +157,6 @@ ro.surface_flinger.supports_background_blur=1
 ro.surface_flinger.use_color_management=true
 ro.surface_flinger.use_content_detection_for_refresh_rate=true
 ro.surface_flinger.wcg_composition_dataspace=143261696
-vendor.gralloc.disable_ubwc=0
 
 # Incremental
 ro.incremental.enable=yes
@@ -172,15 +165,24 @@ ro.incremental.enable=yes
 ro.hardware.keystore_desede=true
 
 # Media
+media.settings.xml=/vendor/etc/media_profiles_vendor.xml
+media.stagefright.thumbnail.prefer_hw_codecs=true
+ro.media.recorder-max-base-layer-fps=60
 debug.c2.use_dmabufheaps=1
 debug.stagefright.c2inputsurface=-1
 debug.stagefright.ccodec=4
 debug.stagefright.omx_default_rank=0
 
+# SoC
+ro.soc.manufacturer=QTI
+
+# PASR
+vendor.pasr.activemode.enabled=true
+vendor.power.pasr.enabled=true
+
 # Perf
 ro.vendor.extension_library=libqti-perfd-client.so
-vendor.pasr.activemode.enabled=false
-vendor.pasr.enabled=false
+ro.vendor.perf-hal.ver=2.3
 
 # Radio
 persist.dbg.volte_avail_ovr=1
@@ -205,14 +207,14 @@ persist.vendor.ssr.restart_level=ALL_ENABLE
 
 # USB
 sys.usb.mtp.batchcancel=1
-vendor.usb.diag.func.name=ffs
 vendor.usb.dpl.inst.name=dpl
 vendor.usb.qdss.inst.name=qdss_sw
 vendor.usb.rmnet.func.name=gsi
 vendor.usb.rmnet.inst.name=rmnet
 vendor.usb.rndis.func.name=gsi
-vendor.usb.use_ffs_mtp=1
-vendor.usb.use_gadget_hal=0
 
 # WiFi
 wifi.aware.interface=wifi-aware0
+
+#
+ro.treble.enabled=true

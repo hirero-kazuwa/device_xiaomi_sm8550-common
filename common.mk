@@ -14,24 +14,23 @@ $(call inherit-product, $(SRC_TARGET_DIR)/product/emulated_storage.mk)
 # Enforce generic ramdisk allow list
 $(call inherit-product, $(SRC_TARGET_DIR)/product/generic_ramdisk.mk)
 
-# Enable virtual AB with vendor ramdisk
-$(call inherit-product, $(SRC_TARGET_DIR)/product/virtual_ab_ota/launch_with_vendor_ramdisk.mk)
+# A/B
+$(call inherit-product, $(SRC_TARGET_DIR)/product/virtual_ab_ota/android_t_baseline.mk)
+$(call inherit-product, $(SRC_TARGET_DIR)/product/generic_ramdisk.mk)
 
 # Setup dalvik vm configs
 $(call inherit-product, frameworks/native/build/phone-xhdpi-6144-dalvik-heap.mk)
 
 # A/B
-AB_OTA_POSTINSTALL_CONFIG += \
-    RUN_POSTINSTALL_system=true \
-    POSTINSTALL_PATH_system=system/bin/otapreopt_script \
-    FILESYSTEM_TYPE_system=ext4 \
-    POSTINSTALL_OPTIONAL_system=true
+ENABLE_AB := true
+ENABLE_VIRTUAL_AB := true
 
-AB_OTA_POSTINSTALL_CONFIG += \
-    RUN_POSTINSTALL_vendor=true \
-    POSTINSTALL_PATH_vendor=bin/checkpoint_gc \
-    FILESYSTEM_TYPE_vendor=ext4 \
-    POSTINSTALL_OPTIONAL_vendor=true
+PRODUCT_VIRTUAL_AB_COMPRESSION_METHOD := gz
+
+PRODUCT_PACKAGES += \
+    update_engine \
+    update_engine_sideload \
+    update_verifier
 
 PRODUCT_PACKAGES += \
     checkpoint_gc \
@@ -41,14 +40,10 @@ PRODUCT_PACKAGES += \
 PRODUCT_PACKAGES += \
     com.dsi.ant@1.0.vendor
 
-# API
-PRODUCT_SHIPPING_API_LEVEL := 31
-BOARD_API_LEVEL := 31
-BOARD_SHIPPING_API_LEVEL := 31
-
-# Atrace
-PRODUCT_PACKAGES += \
-    android.hardware.atrace@1.0-service
+# API level
+BOARD_API_LEVEL := 33
+BOARD_SHIPPING_API_LEVEL := 33
+PRODUCT_SHIPPING_API_LEVEL := 33
 
 # Audio
 $(call soong_config_set, android_hardware_audio, run_64bit, true)
@@ -106,11 +101,21 @@ PRODUCT_COPY_FILES += \
     frameworks/native/data/etc/android.hardware.bluetooth.xml:$(TARGET_COPY_OUT_VENDOR)/etc/permissions/android.hardware.bluetooth.xml \
     frameworks/native/data/etc/android.hardware.bluetooth_le.xml:$(TARGET_COPY_OUT_VENDOR)/etc/permissions/android.hardware.bluetooth_le.xml
 
+# Boot animation
+TARGET_SCREEN_HEIGHT := 2400
+TARGET_SCREEN_WIDTH := 1440
+
+# Boot Animation
+PRODUCT_COPY_FILES += \
+    device/xiaomi/sm8550-common/bootanimation.zip:$(TARGET_COPY_OUT_ODM)/overlayfs/ishtar/product/media/bootanimation.zip
+
 # Boot control
 PRODUCT_PACKAGES += \
     android.hardware.boot@1.2-impl-qti \
     android.hardware.boot@1.2-impl-qti.recovery \
-    android.hardware.boot@1.2-service
+    android.hardware.boot@1.2-service \
+    bootctrl.kalama \
+    bootctrl.kalama.recovery
 
 PRODUCT_PACKAGES_DEBUG += \
     bootctl
@@ -145,6 +150,8 @@ PRODUCT_PACKAGES += \
     vendor.qti.hardware.capabilityconfigstore@1.0.vendor
 
 # Display
+$(call inherit-product, vendor/qcom/opensource/commonsys-intf/display/config/display-interfaces-product.mk)
+$(call inherit-product, vendor/qcom/opensource/commonsys-intf/display/config/display-product-system.mk)
 PRODUCT_PACKAGES += \
     android.hardware.graphics.mapper@4.0-impl-qti-display \
     vendor.qti.hardware.display.allocator-service \
@@ -199,8 +206,10 @@ PRODUCT_PACKAGES += \
     android.hardware.graphics.allocator-V1-ndk.vendor \
     android.hardware.graphics.common-V3-ndk.vendor \
     android.hardware.graphics.mapper@4.0-impl-qti-display \
+    android.hardware.graphics.composer@2.1-service \
     init.qti.display_boot.rc \
     init.qti.display_boot.sh \
+    libdisplayconfig.qti \
     libgralloc.qti \
     libgui_vendor \
     libqdMetaData \
@@ -210,7 +219,6 @@ PRODUCT_PACKAGES += \
     vendor.display.config@2.0.vendor \
     vendor.qti.hardware.display.allocator-service \
     vendor.qti.hardware.display.composer-service \
-    vendor.qti.hardware.display.config \
     vendor.qti.hardware.display.config-V1-ndk.vendor \
     vendor.qti.hardware.display.config-V2-ndk.vendor \
     vendor.qti.hardware.display.config-V3-ndk.vendor \
@@ -245,6 +253,7 @@ PRODUCT_PACKAGES += \
 PRODUCT_PACKAGES += \
     android.hidl.allocator@1.0.vendor \
     android.hidl.memory.block@1.0.vendor \
+    android.hidl.base@1.0.vendor \
     libhidltransport.vendor \
     libhwbinder.vendor
 
@@ -254,7 +263,7 @@ PRODUCT_COPY_FILES += \
 
 # Identity
 PRODUCT_PACKAGES += \
-    android.hardware.identity-V4-ndk.vendor \
+    android.hardware.identity-V4-ndk.vendor
 
 # IPACM
 PRODUCT_PACKAGES += \
@@ -287,7 +296,6 @@ PRODUCT_COPY_FILES += \
 # Keymaster
 PRODUCT_PACKAGES += \
     android.hardware.keymaster@4.1.vendor \
-    android.system.keystore2 \
     libkeymaster_messages.vendor
 
 # Keymint
@@ -313,15 +321,15 @@ PRODUCT_PACKAGES += \
     android.hardware.media.c2@1.1.vendor \
     android.hardware.media.c2@1.2.vendor \
     libavservices_minijail \
-    libavservices_minijail_vendor \
     libavservices_minijail.vendor \
     libcodec2_soft_common.vendor \
     libcodec2_hidl@1.0.vendor \
     libcodec2_hidl@1.1.vendor \
     libcodec2_hidl@1.2.vendor \
     libcodec2_vndk.vendor \
+    libgui_vendor \
     libsfplugin_ccodec_utils.vendor \
-    libpalclient
+    libstagefrighthw
 
 PRODUCT_PACKAGES += \
     init.qti.media.rc \
@@ -399,6 +407,16 @@ PRODUCT_PACKAGES += \
     libprotobuf-cpp-full-3.9.1-vendorcompat \
     libprotobuf-cpp-lite-3.9.1-vendorcompat
 
+# FUSE passthrough
+PRODUCT_PRODUCT_PROPERTIES += \
+    persist.sys.fuse.passthrough.enable=true
+
+# QTI components
+$(call inherit-product, device/qcom/common/components.mk)
+
+TARGET_USE_AIDL_QTI_BT_AUDIO := true
+TARGET_USE_AIDL_QTI_HEALTH := true
+
 # QXR
 PRODUCT_PACKAGES += \
     android.hardware.common-V2-ndk_platform.vendor
@@ -429,6 +447,7 @@ PRODUCT_PACKAGES += \
 
 # Rootdir
 PRODUCT_PACKAGES += \
+    charger_fw_fstab.qti \
     fstab.qcom \
     init.class_main.sh \
     init.qcom.class_core.sh \
@@ -436,11 +455,15 @@ PRODUCT_PACKAGES += \
     init.qcom.post_boot.sh \
     init.qcom.rc \
     init.qcom.sh \
-    init.recovery.qcom.rc \
-    init.recovery.usb.rc \
+    init.qcom.ssr.sh \
+    init.qti.media.rc \
+    init.qti.media.sh \
     init.target.rc \
-    ueventd-odm.rc \
-    ueventd.qcom.rc
+    init.mi_overlay.rc \
+    init.mi_service.rc \
+    ueventd.qcom.rc \
+    ueventd.odm.rc
+
 
 PRODUCT_COPY_FILES += \
     $(LOCAL_PATH)/rootdir/etc/fstab.qcom:$(TARGET_COPY_OUT_VENDOR)/etc/fstab.qcom \
@@ -460,8 +483,7 @@ PRODUCT_COPY_FILES += \
 PRODUCT_PACKAGES += \
     android.frameworks.sensorservice@1.0.vendor \
     android.hardware.sensors-service.multihal \
-    libsensorndkbridge \
-    sensors.xiaomi
+    libsensorndkbridge
 
 PRODUCT_COPY_FILES += \
     frameworks/native/data/etc/android.hardware.sensor.accelerometer.xml:$(TARGET_COPY_OUT_VENDOR)/etc/permissions/sku_kalama/android.hardware.sensor.accelerometer.xml \
@@ -519,7 +541,7 @@ PRODUCT_COPY_FILES += \
 # Ueventd
 PRODUCT_COPY_FILES += \
     $(LOCAL_PATH)/rootdir/etc/ueventd.qcom.rc:$(TARGET_COPY_OUT_VENDOR)/etc/ueventd.rc \
-    $(LOCAL_PATH)/rootdir/etc/ueventd-odm.rc:$(TARGET_COPY_OUT_ODM)/etc/ueventd.rc
+    $(LOCAL_PATH)/rootdir/etc/ueventd.odm.rc:$(TARGET_COPY_OUT_ODM)/etc/ueventd.rc
 
 # Update engine
 PRODUCT_PACKAGES += \
@@ -547,8 +569,8 @@ PRODUCT_COPY_FILES += \
     frameworks/native/data/etc/android.software.verified_boot.xml:$(TARGET_COPY_OUT_VENDOR)/etc/permissions/android.software.verified_boot.xml
 
 # Vibrator
-PRODUCT_PACKAGES += \
-    vendor.qti.hardware.vibrator.service
+#PRODUCT_PACKAGES += \
+#    vendor.qti.hardware.vibrator.service
 
 PRODUCT_COPY_FILES += \
     vendor/qcom/opensource/vibrator/excluded-input-devices.xml:$(TARGET_COPY_OUT_VENDOR)/etc/excluded-input-devices.xml
@@ -558,7 +580,6 @@ PRODUCT_PACKAGES += \
     libcrypto-v33
 
 PRODUCT_COPY_FILES += \
-    prebuilts/vndk/v33/arm64/arch-arm64-armv8-a/shared/vndk-core/libcrypto.so:$(TARGET_COPY_OUT_VENDOR)/lib64/libcrypto-v33.so \
     prebuilts/vndk/v33/arm64/arch-arm64-armv8-a/shared/vndk-core/libstagefright_foundation.so:$(TARGET_COPY_OUT_VENDOR)/lib64/libstagefright_foundation-v33.so
 
 # WiFi
@@ -591,13 +612,3 @@ PRODUCT_COPY_FILES += \
 PRODUCT_PACKAGES += \
     libnl \
     libwfdaac_vendor
-
-PRODUCT_BOOT_JARS += \
-    WfdCommon
-
-# PowerShare
-PRODUCT_PACKAGES += \
-    vendor.lineage.powershare@1.0-service.xiaomi
-
-# Inherit from the proprietary version
-$(call inherit-product, vendor/xiaomi/sm8550-common/sm8550-common-vendor.mk)

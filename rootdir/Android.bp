@@ -1,0 +1,46 @@
+//
+// Copyright (C) 2023 Paranoid Android
+//
+// SPDX-License-Identifier: Apache-2.0
+//
+
+prebuilt_etc {
+    name: "init.mi_overlay.rc",
+    src: "etc/init.mi_overlay.rc",
+    sub_dir: "init/hw",
+    vendor: true,
+}
+
+prebuilt_etc {
+    name: "init.mi_service.rc",
+    src: "etc/init.mi_service.rc",
+    sub_dir: "init/hw",
+    vendor: true,
+}
+
+prebuilt_etc {
+    name: "fstab.qcom",
+    src: "etc/fstab.qcom",
+    vendor: true,
+}
+
+prebuilt_etc {
+    name: "init.target.rc",
+    src: "etc/init.target.rc",
+    sub_dir: "init/hw",
+    vendor: true,
+}
+
+prebuilt_etc {
+    name: "ueventd.qcom.rc",
+    filename: "ueventd.rc",
+    src: "etc/ueventd.qcom.rc",
+    device_specific: true,
+}
+
+prebuilt_etc {
+    name: "ueventd.odm.rc",
+    filename: "ueventd.rc",
+    src: "etc/ueventd.odm.rc",
+    device_specific: true,
+}

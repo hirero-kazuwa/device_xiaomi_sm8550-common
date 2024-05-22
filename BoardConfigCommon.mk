@@ -4,25 +4,16 @@
 # SPDX-License-Identifier: Apache-2.0
 #
 
-# Inherit from the proprietary version
-include vendor/xiaomi/sm8550-common/BoardConfigVendor.mk
-
 COMMON_PATH := device/xiaomi/sm8550-common
 KERNEL_PATH := device/xiaomi/sm8550-common/ishtar-kernel
 
 BUILD_BROKEN_DUP_RULES := true
 BUILD_BROKEN_ELF_PREBUILT_PRODUCT_COPY_FILES := true
+BUILD_BROKEN_VINTF_PRODUCT_COPY_FILES := true
 SELINUX_IGNORE_NEVERALLOWS := true
 
 # ANT+
 BOARD_ANT_WIRELESS_DEVICE := "qualcomm-hidl"
-
-# Architecture
-TARGET_ARCH := arm64
-TARGET_ARCH_VARIANT := armv9-a
-TARGET_CPU_ABI := arm64-v8a
-TARGET_CPU_VARIANT := generic
-TARGET_CPU_VARIANT_RUNTIME := kryo300
 
 # Audio
 $(call soong_config_set, android_hardware_audio, run_64bit, true)
@@ -45,6 +36,12 @@ TARGET_USES_QCOM_MM_AUDIO := true
 # Bootloader
 TARGET_BOOTLOADER_BOARD_NAME := kalama
 TARGET_NO_BOOTLOADER := true
+TARGET_USES_UEFI := true
+BOARD_VENDOR := xiaomi
+TARGET_SOC := kalama
+
+BOARD_ROOT_EXTRA_SYMLINKS := \
+    /vendor/fsg:/fsg
 
 # Bluetooth
 BOARD_BLUETOOTH_BDROID_BUILDCFG_INCLUDE_DIR := $(COMMON_PATH)/bluetooth/include
@@ -69,19 +66,17 @@ BOARD_VENDOR_QCOM_GPS_LOC_API_HARDWARE := default
 $(call soong_config_set, qtilocation, feature_nhz, false)
 
 # Lineage Health
+TARGET_HEALTH_CHARGING_CONTROL_CHARGING_PATH := /sys/class/qcom-battery/input_suspend
+TARGET_HEALTH_CHARGING_CONTROL_CHARGING_ENABLED := 0
+TARGET_HEALTH_CHARGING_CONTROL_CHARGING_DISABLED := 1
 TARGET_HEALTH_CHARGING_CONTROL_SUPPORTS_BYPASS := false
 
-# Kernel
-BOARD_BOOTCONFIG := \
-    androidboot.hardware=qcom \
-    androidboot.memcg=1 \
-    androidboot.usbcontroller=a600000.dwc3 \
-    androidboot.selinux=permissive
+# Init
+TARGET_INIT_VENDOR_LIB := //$(COMMON_PATH):libinit_ishtar
+TARGET_RECOVERY_DEVICE_MODULES := libinit_ishtar
 
-BOARD_KERNEL_CMDLINE := \
-    kasan=off \
-    disable_dma32=on \
-    mtdoops.fingerprint=ishtar:13/V14.0.6.0.TMAMIXM:user
+# Kernel
+BOARD_USES_DT := true
 
 BOARD_KERNEL_PAGESIZE := 4096
 
@@ -91,42 +86,78 @@ BOARD_MKBOOTIMG_ARGS += --header_version $(BOARD_BOOT_HEADER_VERSION)
 BOARD_INIT_BOOT_HEADER_VERSION := 4
 BOARD_MKBOOTIMG_INIT_ARGS += --header_version $(BOARD_INIT_BOOT_HEADER_VERSION)
 
-BOARD_KERNEL_IMAGE_NAME := Image
-TARGET_KERNEL_SOURCE := $(KERNEL_PATH)/kernel-headers
+BOARD_KERNEL_CMDLINE := \
+    video=vfb:640x400,bpp=32,memsize=3072000 \
+    disable_dma32=on \
+    loop.max_part=7 \
+    msm_rtb.filter=0x237 \
+    pcie_ports=compat \
+    service_locator.enable=1 \
+    swinfo.fingerprint=$(LINEAGE_VERSION) \
+    mtdoops.fingerprint=$(LINEAGE_VERSION)
 
+BOARD_BOOTCONFIG := \
+    androidboot.hardware=qcom \
+    androidboot.memcg=1 \
+    androidboot.usbcontroller=a600000.dwc3 \
+    androidboot.selinux=permissive
+
+BOARD_KERNEL_IMAGE_NAME := Image
 BOARD_RAMDISK_USE_LZ4 := true
 TARGET_KERNEL_APPEND_DTB := false
 BOARD_KERNEL_SEPARATED_DTBO := true
 BOARD_INCLUDE_DTB_IN_BOOTIMG := true
 TARGET_KERNEL_ARCH := arm64
 TARGET_KERNEL_HEADER_ARCH := arm64
-TARGET_FORCE_PREBUILT_KERNEL := true
-TARGET_KERNEL_SOURCE := kernel/xiaomi/sm8550
+TARGET_KERNEL_SOURCE := $(KERNEL_PATH)
 TARGET_KERNEL_CONFIG := \
     gki_defconfig \
     vendor/kalama_GKI.config
 
-BOARD_USES_GENERIC_KERNEL_IMAGE := true
+# Kill lineage kernel build task while preserving kernel
+TARGET_NO_KERNEL_OVERRIDE := true
 
+#BOARD_USES_GENERIC_KERNEL_IMAGE := true
+TARGET_FORCE_PREBUILT_KERNEL := true
+TARGET_KERNEL_VERSION := 5.15
 TARGET_PREBUILT_KERNEL := device/xiaomi/sm8550-common/ishtar-kernel/Image
 BOARD_PREBUILT_DTBOIMAGE := $(KERNEL_PATH)/dtbo.img
 TARGET_PREBUILT_DTB := $(KERNEL_PATH)/dtb.img
 BOARD_MKBOOTIMG_ARGS += --dtb $(TARGET_PREBUILT_DTB)
 PRODUCT_COPY_FILES += \
-    $(KERNEL_PATH)/dtb.img:$(TARGET_COPY_OUT)/dtb.img
-
+    $(TARGET_PREBUILT_DTB):$(TARGET_COPY_OUT)/dtb.img
 
 # Kernel modules
-BOARD_VENDOR_KERNEL_MODULES_LOAD := $(strip $(shell cat $(COMMON_PATH)/ishtar-kernel/vendor_dlkm/modules.load))
-BOARD_VENDOR_KERNEL_MODULES_BLOCKLIST_FILE :=  $(COMMON_PATH)/ishtar-kernel/vendor_dlkm/modules.blocklist
-BOARD_VENDOR_RAMDISK_KERNEL_MODULES_LOAD := $(strip $(shell cat  $(COMMON_PATH)/ishtar-kernel/vendor_boot/modules.load))
-BOARD_VENDOR_RAMDISK_KERNEL_MODULES_BLOCKLIST_FILE := $(COMMON_PATH)/ishtar-kernel/vendor_boot/modules.blocklist
-BOARD_VENDOR_RAMDISK_RECOVERY_KERNEL_MODULES_LOAD := $(strip $(shell cat $(COMMON_PATH)/ishtar-kernel/vendor_boot/modules.load.recovery))
+BOOT_KERNEL_MODULES := $(strip $(shell cat $(COMMON_PATH)/ishtar-kernel/vendor_ramdisk/modules.load.recovery))
+BOARD_SYSTEM_KERNEL_MODULES_LOAD := $(strip $(shell cat $(KERNEL_PATH)/system_dlkm/modules.load))
 
-PRODUCT_COPY_FILES += \
-    $(call find-copy-subdir-files,*,$(COMMON_PATH)/ishtar-kernel/vendor_dlkm/,$(TARGET_COPY_OUT_VENDOR_DLKM)/lib/modules) \
-    $(call find-copy-subdir-files,*,$(COMMON_PATH)/ishtar-kernel/vendor_boot/,$(TARGET_COPY_OUT_VENDOR_RAMDISK)/lib/modules) \
-    $(call find-copy-subdir-files,*,$(COMMON_PATH)/ishtar-kernel/system_dlkm/,$(TARGET_COPY_OUT_SYSTEM_DLKM)/lib/modules/)
+BOARD_VENDOR_RAMDISK_KERNEL_MODULES_LOAD := $(strip $(shell cat $(KERNEL_PATH)/vendor_ramdisk/modules.load))
+BOARD_VENDOR_RAMDISK_KERNEL_MODULES := $(addprefix $(KERNEL_PATH)/vendor_ramdisk/, $(BOARD_VENDOR_RAMDISK_KERNEL_MODULES_LOAD))
+BOARD_VENDOR_RAMDISK_KERNEL_MODULES_BLOCKLIST_FILE := $(KERNEL_PATH)/vendor_ramdisk/modules.blocklist
+
+BOARD_VENDOR_RAMDISK_RECOVERY_KERNEL_MODULES_LOAD := $(strip $(shell cat $(KERNEL_PATH)/vendor_ramdisk/modules.load.recovery))
+RECOVERY_MODULES := $(addprefix $(KERNEL_PATH)/vendor_ramdisk/, $(BOARD_VENDOR_RAMDISK_RECOVERY_KERNEL_MODULES_LOAD))
+
+BOARD_VENDOR_RAMDISK_KERNEL_MODULES := $(sort $(BOARD_VENDOR_RAMDISK_KERNEL_MODULES) $(RECOVERY_MODULES))
+
+BOARD_VENDOR_KERNEL_MODULES_LOAD := $(strip $(shell cat $(KERNEL_PATH)/vendor_dlkm/modules.load))
+BOARD_VENDOR_KERNEL_MODULES := $(addprefix $(KERNEL_PATH)/vendor_dlkm/, $(BOARD_VENDOR_KERNEL_MODULES_LOAD))
+BOARD_VENDOR_KERNEL_MODULES_BLOCKLIST_FILE :=  $(KERNEL_PATH)/vendor_dlkm/modules.blocklist
+
+# Kernel modules
+#BOOT_KERNEL_MODULES := $(strip $(shell cat $(COMMON_PATH)/ishtar-kernel/vendor_boot/modules.load.recovery))
+#BOARD_VENDOR_KERNEL_MODULES := $(wildcard $(COMMON_PATH)/ishtar-kernel/vendor_dlkm/*.ko)
+#BOARD_VENDOR_KERNEL_MODULES_LOAD := $(strip $(shell cat $(COMMON_PATH)/ishtar-kernel/vendor_dlkm/modules.load))
+#BOARD_VENDOR_KERNEL_MODULES_BLOCKLIST_FILE :=  $(COMMON_PATH)/ishtar-kernel/vendor_dlkm/modules.blocklist
+#BOARD_VENDOR_RAMDISK_KERNEL_MODULES := $(wildcard $(COMMON_PATH)/ishtar-kernel/vendor_boot/*.ko)
+#BOARD_VENDOR_RAMDISK_KERNEL_MODULES_LOAD := $(strip $(shell cat  $(COMMON_PATH)/ishtar-kernel/vendor_boot/modules.load))
+#BOARD_VENDOR_RAMDISK_KERNEL_MODULES_BLOCKLIST_FILE := $(COMMON_PATH)/ishtar-kernel/vendor_boot/modules.blocklist
+#BOARD_VENDOR_RAMDISK_RECOVERY_KERNEL_MODULES_LOAD := $(strip $(shell cat $(COMMON_PATH)/ishtar-kernel/vendor_boot/modules.load.recovery))
+
+#PRODUCT_COPY_FILES += \
+#    $(call find-copy-subdir-files,*,$(COMMON_PATH)/ishtar-kernel/vendor_dlkm/,$(TARGET_COPY_OUT_VENDOR_DLKM)/lib/modules) \
+#    $(call find-copy-subdir-files,*,$(COMMON_PATH)/ishtar-kernel/vendor_boot/,$(TARGET_COPY_OUT_VENDOR_RAMDISK)/lib/modules) \
+#    $(call find-copy-subdir-files,*,$(COMMON_PATH)/ishtar-kernel/system_dlkm/,$(TARGET_COPY_OUT_SYSTEM_DLKM)/lib/modules/)
 
 # Metadata
 BOARD_USES_METADATA_PARTITION := true
@@ -171,42 +202,23 @@ ENABLE_VENDOR_RIL_SERVICE := true
 # Security patch level
 VENDOR_SECURITY_PATCH := 2024-01-01
 
-# System As Root
-BOARD_BUILD_GKI_BOOT_IMAGE_WITHOUT_RAMDISK := false
-
 # Sepolicy
 include device/qcom/sepolicy_vndr/SEPolicy.mk
-
+include device/xiaomi/sepolicy/SEPolicy.mk
 SYSTEM_EXT_PRIVATE_SEPOLICY_DIRS += $(COMMON_PATH)/sepolicy/private
 SYSTEM_EXT_PUBLIC_SEPOLICY_DIRS += $(COMMON_PATH)/sepolicy/public
 BOARD_VENDOR_SEPOLICY_DIRS += $(COMMON_PATH)/sepolicy/vendor
-BOARD_SEPOLICY_M4DEFS += \
-    sysfs_battery_supply=vendor_sysfs_battery_supply
 
 # VINTF
 DEVICE_MANIFEST_SKUS := kalama
-DEVICE_MANIFEST_FILE := $(COMMON_PATH)/vintf/manifest_xiaomi.xml
-DEVICE_MATRIX_FILE := $(COMMON_PATH)/vintf/compatibility_matrix.xml
 DEVICE_MANIFEST_KALAMA_FILES := $(COMMON_PATH)/vintf/manifest_kalama.xml
+DEVICE_MATRIX_FILE := $(COMMON_PATH)/vintf/compatibility_matrix.xml
 DEVICE_FRAMEWORK_COMPATIBILITY_MATRIX_FILE := \
     $(COMMON_PATH)/vintf/compatibility_matrix.device.xml \
     $(COMMON_PATH)/vintf/compatibility_matrix.xiaomi.xml \
-    vendor/evolution/config/device_framework_matrix.xml
-
-# Verified Boot
-BOARD_AVB_ENABLE := true
-BOARD_AVB_MAKE_VBMETA_IMAGE_ARGS += --flags 3
-BOARD_AVB_RECOVERY_KEY_PATH := external/avb/test/data/testkey_rsa2048.pem
-BOARD_AVB_RECOVERY_ALGORITHM := SHA256_RSA2048
-BOARD_AVB_RECOVERY_ROLLBACK_INDEX := $(PLATFORM_SECURITY_PATCH_TIMESTAMP)
-BOARD_AVB_RECOVERY_ROLLBACK_INDEX_LOCATION := 1
-BOARD_AVB_VBMETA_SYSTEM := system system_ext product
-BOARD_AVB_VBMETA_SYSTEM_KEY_PATH := external/avb/test/data/testkey_rsa2048.pem
-BOARD_AVB_VBMETA_SYSTEM_ALGORITHM := SHA256_RSA2048
-BOARD_AVB_VBMETA_SYSTEM_ROLLBACK_INDEX := $(PLATFORM_SECURITY_PATCH_TIMESTAMP)
-BOARD_AVB_VBMETA_SYSTEM_ROLLBACK_INDEX_LOCATION := 2
-
-BOARD_MOVE_GSI_AVB_KEYS_TO_VENDOR_BOOT := true
+    device/qcom/vendor-common/vintf/vendor_framework_compatibility_matrix.xml \
+    hardware/qcom-caf/common/vendor_framework_compatibility_matrix.xml \
+    vendor/lineage/config/device_framework_matrix.xml
 
 # VNDK
 BOARD_VNDK_VERSION := current

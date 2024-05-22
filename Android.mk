@@ -6,7 +6,7 @@
 
 LOCAL_PATH := $(call my-dir)
 
-ifneq ($(filter fuxi ishtar nuwa,$(TARGET_DEVICE)),)
+ifneq ($(filter ishtar,$(TARGET_DEVICE)),)
 
 include $(call all-makefiles-under,$(LOCAL_PATH))
 
@@ -34,10 +34,10 @@ $(VM_SYSTEM_MOUNT_POINT): $(LOCAL_INSTALLED_MODULE)
 	@mkdir -p $(TARGET_OUT_VENDOR)/vm-system
 
 ALL_DEFAULT_INSTALLED_MODULES += \
-    $(FIRMWARE_MOUNT_POINT) \
-    $(BT_FIRMWARE_MOUNT_POINT) \
-    $(DSP_MOUNT_POINT) \
-    $(VM_SYSTEM_MOUNT_POINT)
+	$(FIRMWARE_MOUNT_POINT) \
+	$(BT_FIRMWARE_MOUNT_POINT) \
+	$(DSP_MOUNT_POINT) \
+	$(VM_SYSTEM_MOUNT_POINT)
 
 IMS_LIBS := libimscamera_jni.so libimsmedia_jni.so
 IMS_SYMLINKS := $(addprefix $(TARGET_OUT_SYSTEM_EXT_APPS_PRIVILEGED)/ims/lib/arm64/,$(notdir $(IMS_LIBS)))
@@ -76,7 +76,6 @@ ALL_DEFAULT_INSTALLED_MODULES += \
 	$(IMS_SYMLINKS) \
 	$(EGL_LIB_SYMLINKS) \
 	$(EGL_LIB64_SYMLINKS)
-
 
 RFS_MDM_ADSP_SYMLINKS := $(TARGET_OUT_VENDOR)/rfs/mdm/adsp/
 $(RFS_MDM_ADSP_SYMLINKS): $(LOCAL_INSTALLED_MODULE)
@@ -137,7 +136,7 @@ $(RFS_MDM_TN_SYMLINKS): $(LOCAL_INSTALLED_MODULE)
 	$(hide) ln -sf /mnt/vendor/persist/hlos_rfs/shared $@/hlos
 	$(hide) ln -sf /vendor/firmware_mnt $@/readonly/firmware
 	$(hide) ln -sf /vendor/firmware $@/readonly/vendor/firmware
-
+	
 RFS_MDM_WPSS_SYMLINKS := $(TARGET_OUT_VENDOR)/rfs/mdm/wpss/
 $(RFS_MDM_WPSS_SYMLINKS): $(LOCAL_INSTALLED_MODULE)
 	@echo "Creating RFS MDM WPSS folder structure: $@"
@@ -232,7 +231,7 @@ ALL_DEFAULT_INSTALLED_MODULES += \
 	$(RFS_MSM_MPSS_SYMLINKS) \
 	$(RFS_MSM_SLPI_SYMLINKS) \
 	$(RFS_MSM_WPSS_SYMLINKS)
-
+	
 RFS_APQ_GNSS_SYMLINKS := $(TARGET_OUT_VENDOR)/rfs/apq/gnss/
 $(RFS_APQ_GNSS_SYMLINKS): $(LOCAL_INSTALLED_MODULE)
 	@echo "Creating RFS APQ GNSS folder structure: $@"
@@ -248,11 +247,19 @@ $(RFS_APQ_GNSS_SYMLINKS): $(LOCAL_INSTALLED_MODULE)
 ALL_DEFAULT_INSTALLED_MODULES += \
 	$(RFS_APQ_GNSS_SYMLINKS)
 
-FIRMWARE_WLAN_QCA_CLD_SYMLINKS := $(TARGET_OUT_VENDOR)/firmware/wlan/qca_cld/
-$(FIRMWARE_WLAN_QCA_CLD_SYMLINKS): $(LOCAL_INSTALLED_MODULE)
-	@echo "Creating qca_cld wlan firmware symlinks: $@"
+FIRMWARE_WLAN_QCA_CLD_KIWI_SYMLINKS := $(TARGET_OUT_VENDOR)/firmware/wlan/qca_cld/kiwi/
+$(FIRMWARE_WLAN_QCA_CLD_KIWI_SYMLINKS): $(LOCAL_INSTALLED_MODULE)
+	@echo "Creating kiwi qca_cld wlan firmware symlinks: $@"
 	mkdir -p $@
-	$(hide) ln -sf /vendor/etc/wifi/WCNSS_qcom_cfg.ini $@/WCNSS_qcom_cfg.ini
+	$(hide) ln -sf /vendor/etc/wifi/kiwi/WCNSS_qcom_cfg.ini $@/WCNSS_qcom_cfg.ini
+	$(hide) ln -sf /mnt/vendor/persist/kiwi/wlan_mac.bin $@/wlan_mac.bin
+
+FIRMWARE_WLAN_QCA_CLD_KIWI_V2_SYMLINKS := $(TARGET_OUT_VENDOR)/firmware/wlan/qca_cld/kiwi_v2/
+$(FIRMWARE_WLAN_QCA_CLD_KIWI_V2_SYMLINKS): $(LOCAL_INSTALLED_MODULE)
+	@echo "Creating kiwi_v2 qca_cld wlan firmware symlinks: $@"
+	mkdir -p $@
+	$(hide) ln -sf /vendor/etc/wifi/kiwi_v2/WCNSS_qcom_cfg.ini $@/WCNSS_qcom_cfg.ini
+	$(hide) ln -sf /mnt/vendor/persist/kiwi_v2/wlan_mac.bin $@/wlan_mac.bin
 
 FIRMWARE_WLAN_QCA_CLD_QCA6490_SYMLINKS := $(TARGET_OUT_VENDOR)/firmware/wlan/qca_cld/qca6490/
 $(FIRMWARE_WLAN_QCA_CLD_QCA6490_SYMLINKS): $(LOCAL_INSTALLED_MODULE)
@@ -261,17 +268,10 @@ $(FIRMWARE_WLAN_QCA_CLD_QCA6490_SYMLINKS): $(LOCAL_INSTALLED_MODULE)
 	$(hide) ln -sf /vendor/etc/wifi/qca6490/WCNSS_qcom_cfg.ini $@/WCNSS_qcom_cfg.ini
 	$(hide) ln -sf /mnt/vendor/persist/qca6490/wlan_mac.bin $@/wlan_mac.bin
 
-FIRMWARE_WLAN_QCA_CLD_QCA6750_SYMLINKS := $(TARGET_OUT_VENDOR)/firmware/wlan/qca_cld/qca6750/
-$(FIRMWARE_WLAN_QCA_CLD_QCA6750_SYMLINKS): $(LOCAL_INSTALLED_MODULE)
-	@echo "Creating qca6750 qca_cld wlan firmware symlinks: $@"
-	mkdir -p $@
-	$(hide) ln -sf /vendor/etc/wifi/qca6750/WCNSS_qcom_cfg.ini $@/WCNSS_qcom_cfg.ini
-	$(hide) ln -sf /mnt/vendor/persist/qca6750/wlan_mac.bin $@/wlan_mac.bin
-
 ALL_DEFAULT_INSTALLED_MODULES += \
-    $(FIRMWARE_WLAN_QCA_CLD_SYMLINKS) \
-    $(FIRMWARE_WLAN_QCA_CLD_QCA6490_SYMLINKS) \
-    $(FIRMWARE_WLAN_QCA_CLD_QCA6750_SYMLINKS)
+	$(FIRMWARE_WLAN_QCA_CLD_KIWI_SYMLINKS) \
+	$(FIRMWARE_WLAN_QCA_CLD_KIWI_V2_SYMLINKS) \
+	$(FIRMWARE_WLAN_QCA_CLD_QCA6490_SYMLINKS)
 
 FIRMWARE_SYMLINKS := $(TARGET_OUT_VENDOR)/firmware/
 $(FIRMWARE_SYMLINKS): $(LOCAL_INSTALLED_MODULE)
